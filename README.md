@@ -40,7 +40,7 @@ An example manifest could be:
     
     <dc:identifier>http://www.myget.org/F/googleanalyticstracker</dc:identifier>    
     <dc:creator>maartenba</dc:creator>    
-    <dc:owner>maartenba</dc: owner >
+    <dc:owner>maartenba</dc:owner>
     <dc:title>Staging feed for GoogleAnalyticsTracker</dc:title>
     <dc:description>Staging feed for GoogleAnalyticsTracker</dc:description> 
     <homePageLink>http://www.myget.org/gallery/googleanalyticstracker</homePageLink>
