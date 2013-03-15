@@ -149,10 +149,30 @@ If the user is logged in, either controlled by basic authentication or using the
 
 The client should respect the following flow of discovering feeds:
 
-* If no NFD is given, the client should assume http://nuget.<currentdomain> as the NFD server.
+* If no NFD is given, the client should assume `http://nuget.<currentdomain>` as the NFD server.
 * The NFD URL is accesses and downloaded. It can contain:
-  * HTML containing a `<link rel="nuget" type="application/rsd+xml" title="GoogleAnalyticsTracker feed on MyGet" href="http://myget.org/discovery/feed/googleanalyticstracker"/>` tag. This URL should be followed and the NFD manifest parsed. Note that multiple tags may exist and should all be parsed.
-  * HTML containing a `<link rel="nuget" type="application/atom+xml" title="WebMatrix Package Source" href="http://nuget.org/api/v2/curated-feeds/WebMatrix/Packages"/>` tag. This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.
+  * HTML containing a tag such as 
+
+	```html
+    <link rel="nuget" 
+          type="application/rsd+xml" 
+          title="GoogleAnalyticsTracker feed on MyGet" 
+          href="http://myget.org/discovery/feed/googleanalyticstracker"/>
+	```
+
+	This URL should be followed and the NFD manifest parsed. Note that multiple tags may exist and should all be parsed.
+	
+  * HTML containing a tag such as
+
+	```html
+    <link rel="nuget" 
+    	  type="application/atom+xml" 
+    	  title="WebMatrix Package Source" 
+    	  href="http://nuget.org/api/v2/curated-feeds/WebMatrix/Packages"/>
+	```
+
+	This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.
+	
   * If the URL directly points to a NuGet Feed Discovery Manifest, we can immediately parse it.
 
 The client should support entry of a complete NFD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a NFD manifest or contains a `<link rel="nuget"/>` tag.
