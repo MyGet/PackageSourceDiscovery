@@ -21,7 +21,7 @@ Close and re-open Visual Studio and check your package sources. The URL has been
 
 ## Request
 
-An NFD request is an HTTP GET to an NDF manifest file with optional authentication and an optional X-NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.
+An NFD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.
 
 ## Response
 
@@ -143,7 +143,7 @@ All feeds should contain an Id.
 
 All feeds that the requesting user has read access to should be returned. If the user is anonymous, feeds that require authentication should be omitted.
 
-If the user is logged in, either controlled by basic authentication or using the `X-NuGet-ApiKey` HttpHeader, the server should return every feed the user has access to as well as feed specific settings such as API keys and so on. The NFD client can use these specifics to preconfigure the NuGet.config file on the user's machine.
+If the user is logged in, either controlled by basic authentication or using the `NuGet-ApiKey` HttpHeader, the server should return every feed the user has access to as well as feed specific settings such as API keys and so on. The NFD client can use these specifics to preconfigure the NuGet.config file on the user's machine.
 
 ## Client / Consumer Implementation Guidelines
 
@@ -152,12 +152,12 @@ The client should respect the following flow of discovering feeds:
 * If no NFD is given, the client should assume http://nuget.<currentdomain> as the NFD server.
 * The NFD URL is accesses and downloaded. It can contain:
   * HTML containing a `<link rel="nuget" type="application/rsd+xml" href="http://www.xavierdecoster.com"/>` tag. This URL should be followed and the NFD manifest parsed. Note that multiple tags may exist and should all be parsed.
-  * HTML containing a `<link rel="nuget" type="application/atom+xml" href="http://www.xavierdecoster.com"/>` tag. This URL should be treated as a NuGet feed and added as-is. No further metadata can be discovered for this feed. Note that multiple tags may exist.
+  * HTML containing a `<link rel="nuget" type="application/atom+xml" href="http://www.xavierdecoster.com" title="Xavier feed"/>` tag. This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.
   * If the URL directly points to a NuGet Feed Discovery Manifest, we can immediately parse it.
 
 The client should support entry of a complete NFD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a NFD manifest or contains a `<link rel="nuget"/>` tag.
 
-Depending on security, consuming an NFD manifest using the `X-NuGet-ApiKey` header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to https://www.myget.org/Discovery/Feed/googleanalyticstracker:
+Depending on security, consuming an NFD manifest using the `NuGet-ApiKey` header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to https://www.myget.org/Discovery/Feed/googleanalyticstracker:
 
 ```xml
 <rsd version="1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://archipelago.phrasewise.com/rsd">
@@ -217,111 +217,122 @@ The Client/Consumer is implemented using PowerShell.
 ```powershell
 function Add-PackageSource {
     param(
-        [parameter(Mandatory = $true)]
-        [string]$Name,
-        [parameter(Mandatory = $true)]
-        [string]$Source
+  	[parameter(Mandatory = $true)]
+		[string]$Name,
+		[parameter(Mandatory = $true)]
+		[string]$Source
     )   
 
-    $configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
-    $configurationXml = [xml]$configuration
+	$configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
+	$configurationXml = [xml]$configuration
 
-    $sourceToAdd = $configurationXml.createElement("add")
-    $sourceToAdd.SetAttribute("key", $Name);
-    $sourceToAdd.SetAttribute("value", $Source);
-    $configurationXml.configuration.packageSources.appendChild($sourceToAdd) | Out-Null
+	$sourceToAdd = $configurationXml.createElement("add")
+	$sourceToAdd.SetAttribute("key", $Name);
+	$sourceToAdd.SetAttribute("value", $Source);
+	$configurationXml.configuration.packageSources.appendChild($sourceToAdd) | Out-Null
 
-    $configurationXml.save("$env:AppData\NuGet\NuGet.config")
+	$configurationXml.save("$env:AppData\NuGet\NuGet.config")
 
-    Write-Host "Added feed `"$Name`" ($Source)"
+	Write-Host "Added feed `"$Name`" ($Source)"
 }
 
 function Get-PackageSource {
     param(
-        [parameter(Mandatory = $false)]
-        [string]$Name
+		[parameter(Mandatory = $false)]
+		[string]$Name
     )   
-    
-    $configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
-    $configurationXml = [xml]$configuration
-    
-    if ($Name -ne $null -and $Name -ne "") {
-        return $configurationXml.configuration.packageSources.add | where { $_.key -eq $Name} | Format-Table @{Label="Name"; Expression={$_.key}}, @{Label="Source"; Expression={$_.value}}
-    } else {
-        return $null
-    }
+	
+	$configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
+	$configurationXml = [xml]$configuration
+	
+	if ($Name -ne $null -and $Name -ne "") {
+		return $configurationXml.configuration.packageSources.add | where { $_.key -eq $Name} | Format-Table @{Label="Name"; Expression={$_.key}}, @{Label="Source"; Expression={$_.value}}
+	} else {
+		return $null
+	}
 }
 
 function Discover-PackageSources {
     param(
-        [parameter(Mandatory = $false)]
-        [string]$Url,
-        [parameter(Mandatory = $false)]
-        [string]$Username, 
-        [parameter(Mandatory = $false)]
-        [string]$Password, 
-        [parameter(Mandatory = $false)]
-        [string]$ApiKey
+		[parameter(Mandatory = $false)]
+		[string]$Url,
+		[parameter(Mandatory = $false)]
+		[string]$Username, 
+		[parameter(Mandatory = $false)]
+		[string]$Password, 
+		[parameter(Mandatory = $false)]
+		[string]$ApiKey, 
+		[parameter(Mandatory = $false)]
+		[string]$Title
     )   
 
-    if ($Url -eq "") {
-        $dnsDomains = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=TRUE -ComputerName . | %{ $_.DNSDomain }
-        foreach ($dnsDomain in $dnsDomains) {
-            $autoDiscoveryUrl = "http://nuget.$dnsDomain"
-            Write-Host "Trying feed autodiscovery from $autoDiscoveryUrl..."
-            try {
-                Discover-PackageSources -Url $autoDiscoveryUrl -Username $Username -Password $Password
-            } catch {
-                Write-Host "Could not autodiscover feeds."
-            }
-        }
-        return
-    }
-    
-    $regex = "<\s*link\s*[^>]*?href\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
+	if ($Url -eq "") {
+		$dnsDomains = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=TRUE -ComputerName . | %{ $_.DNSDomain }
+		foreach ($dnsDomain in $dnsDomains) {
+			$autoDiscoveryUrl = "http://nuget.$dnsDomain"
+			Write-Host "Trying feed autodiscovery from $autoDiscoveryUrl..."
+			try {
+				Discover-PackageSources -Url $autoDiscoveryUrl -Username $Username -Password $Password
+			} catch {
+				Write-Host "Could not autodiscover feeds."
+			}
+		}
+		return
+	}
+	
+	$relRegex = "<\s*link\s*[^>]*?rel\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
+	$hrefRegex = "<\s*link\s*[^>]*?href\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
+	$titleRegex = "<\s*link\s*[^>]*?title\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
 
-    $data = $null
+	$data = $null
 
-    $webclient = new-object System.Net.WebClient
-    if ($Username -ne "") {
-       $credentials = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Username + ":" + $Password))
+	$webclient = new-object System.Net.WebClient
+	if ($Username -ne "") {
+	   $credentials = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Username + ":" + $Password))
         $webClient.Headers.Add("Authorization", "Basic $credentials")
-    }
-    if ($ApiKey -ne "") {
-        $webClient.Headers.Add("X-NuGet-ApiKey", $ApiKey)
-    }
+	}
+	if ($ApiKey -ne "") {
+		$webClient.Headers.Add("X-NuGet-ApiKey", $ApiKey) # for backwards compatibility
+		$webClient.Headers.Add("NuGet-ApiKey", $ApiKey)
+	}
  
-    $data = $webclient.DownloadString($Url)
+	$data = $webclient.DownloadString($Url)
 
-    $resultingMatches = [Regex]::Matches($data, $regex, "IgnoreCase")
-    foreach ($match in $resultingMatches) {
-        if ($match.Groups[0].Value.Trim().IndexOf("nuget") -gt 0) {
-            Discover-PackageSources -Url $match.Groups[1].Value.Trim() -Username $Username -Password $Password
-        }
-    }
-    
-    try {
-        $xml = [xml]$data
-        
-        if ($xml.service -ne $null) {
-            # Regular feed
-            $Name = Split-Path $Url -Leaf
-            if ((Get-PackageSource -Name $Name) -eq $null) {
-                Add-PackageSource -Name $Name -Source $Url
-            }
-        } elseif ($xml.rsd -ne $null) {
-            # RSD document
-            foreach ($service in $xml.rsd.service) {
-                if ((Get-PackageSource -Name $service.title) -eq $null) {
-                    foreach ($endpoint in $service.apis.api) {
-                        if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
-                            Add-PackageSource -Name $service.title -Source $endpoint.apiLink
-                        }
-                    }
-                }
-            }
-        }
-    } catch {
-    }
+	$resultingMatches = [Regex]::Matches($data, $hrefRegex, "IgnoreCase")
+	foreach ($match in $resultingMatches) {
+	   $rel = [Regex]::Match($match, $relRegex, "IgnoreCase").Groups[1].Value
+	   $href = $match.Groups[1].Value
+	   $title = [Regex]::Match($match, $titleRegex, "IgnoreCase").Groups[1].Value
+
+	   if ($rel -eq "nuget") {
+	       Discover-PackageSources -Url $match.Groups[1].Value.Trim() -Username $Username -Password $Password -Title $title
+	   }
+	}
+	
+	try {
+		$xml = [xml]$data
+		
+		if ($xml.service -ne $null) {
+		    # Regular feed
+		    if ($Title -eq "") {
+		        $Title = Split-Path $Url -Leaf
+		    }
+		    if ((Get-PackageSource -Name $Title) -eq $null) {
+		        Add-PackageSource -Name $Title -Source $Url
+		    }
+		} elseif ($xml.rsd -ne $null) {
+		    # RSD document
+		    foreach ($service in $xml.rsd.service) {
+    		    if ((Get-PackageSource -Name $service.title) -eq $null) {
+    			    foreach ($endpoint in $service.apis.api) {
+    				    if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
+    				    	Add-PackageSource -Name $service.title -Source $endpoint.apiLink
+    				    }
+    			    }
+    		    }
+		    }
+		}
+	} catch {
+	}
 }
 ```
