@@ -356,3 +356,11 @@ function Discover-PackageSources {
 	}
 }
 ```
+
+Also [check our Wiki][1] for details on clients implementing this spec already.
+
+## License
+This repository, including the NFD spec and clients, are licensed under the [Apache v2.0 license][2].
+
+[1]: https://github.com/myget/FeedDiscovery/wiki
+[2]: https://github.com/myget/FeedDiscovery/blob/master/LICENSE.md
