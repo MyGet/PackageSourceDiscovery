@@ -39,6 +39,12 @@ namespace NuGet.Commands
                 throw new CommandLineException(PsdResources.DiscoverCommandUrlRequired);
             }
 
+            // do a best effort to add the protocol
+            if (!Url.ToUpperInvariant().StartsWith("HTTP"))
+            {
+                Url = string.Format("http://{0}", Url);
+            }
+
             Uri uri;
             if (!Uri.TryCreate(Url, UriKind.Absolute, out uri))
             {
