@@ -186,7 +186,7 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
 <ul>
 <li>If no PSD is given, the client should assume <code>http://nuget.&lt;currentdomain&gt;</code> as the PSD server.</li>
 <li>
-<p>The PSD URL is accesses and downloaded. It can contain:</p>
+<p>The PSD URL is accessed and downloaded. It can contain:</p>
 
 <ul>
 <li>HTML containing a tag such as </li>
@@ -209,11 +209,8 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
 </pre></div>
 
 <p>This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.</p>
-
-<ul>
-<li>If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.</li>
-</ul>
 </li>
+<li><p>If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.</p></li>
 </ul><p>The client should support entry of a complete PSD URL <code>&lt;protocol&gt;://&lt;host name&gt;:&lt;port&gt;/&lt;path&gt;</code> but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a PSD manifest or contains a <code>&lt;link rel="nuget"/&gt;</code> tag.</p>
 
 <p>Depending on security, consuming an PSD manifest using the <code>NuGet-ApiKey</code> header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to <a href="https://www.myget.org/Discovery/Feed/googleanalyticstracker:">https://www.myget.org/Discovery/Feed/googleanalyticstracker:</a></p>
