@@ -82,7 +82,7 @@ namespace NuGet.Commands
                     sourceList.Add(source);
 
                     var pushEndpoint = discoveryDocument.Endpoints.OrderByDescending(e => e.Preferred).FirstOrDefault(e => e.Name == FeedDiscoveryConstants.Discovery.PushV1 || e.Name == FeedDiscoveryConstants.Discovery.PushV2);
-                    if (pushEndpoint != null && pushEndpoint.Settings["apiKey"] != null)
+                    if (pushEndpoint != null && pushEndpoint.Settings.ContainsKey("apiKey"))
                     {
                         Settings.SetEncryptedValue(CommandLineUtility.ApiKeysSectionName, source.Source, pushEndpoint.Settings["apiKey"]);
                     }

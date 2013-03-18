@@ -46,12 +46,15 @@ namespace NuGet.Test.Commands
         public void CommandDoesNotThrowIfUrlIsValidUrl(string url)
         {
             // Arrange
+            var console = new Mock<IConsole>(MockBehavior.Strict);
+            console.Setup(c => c.WriteLine(PsdResources.DiscoverCommandSuccessful, 1));
+
             var packageSourceProvider = new Mock<IPackageSourceProvider>(MockBehavior.Strict);
             packageSourceProvider.Setup(p => p.LoadPackageSources()).Returns(() => new List<PackageSource>());
             packageSourceProvider.Setup(p => p.SavePackageSources(It.IsAny<IEnumerable<PackageSource>>()));
 
             var discoverCommand = new DiscoverCommandMock();
-            discoverCommand.Console = new Console();
+            discoverCommand.Console = console.Object;
             discoverCommand.SetPackageSourceProvider(packageSourceProvider.Object);
             discoverCommand.Url = url;
             Action act = discoverCommand.ExecuteCommand;

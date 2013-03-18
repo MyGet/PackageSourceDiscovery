@@ -95,8 +95,15 @@ namespace NuGet
             XDocument xml = XDocument.Parse(data);
 
             // If an RSD is given, parse it
-            if (xml.Root != null && xml.Root.Name == RsdNamespace + "rsd")
+            if (xml.Root != null && (xml.Root.Name == RsdNamespace + "rsd" || xml.Root.Name == "rsd"))
             {
+                // If no RSD namespace is registered, now is the time
+                if (xml.Root.Name == "rsd")
+                {
+                    SetDefaultNamespace(xml.Root, RsdNamespace);
+                }
+
+                // Parse all elements
                 foreach (XElement xmlService in xml.Descendants(RsdNamespace + "service"))
                 {
                     var discoveryDocument = new PackageSourceDiscoveryDocument();
@@ -128,6 +135,19 @@ namespace NuGet
                 }
             }
             return discoveryDocuments;
+        }
+
+        protected void SetDefaultNamespace(XElement element, XNamespace newXmlns)
+        {
+            var currentXmlns = element.GetDefaultNamespace();
+            if (currentXmlns == newXmlns)
+                return;
+
+            foreach (var descendant in element.DescendantsAndSelf()
+                .Where(e => e.Name.Namespace == currentXmlns))
+            {
+                descendant.Name = newXmlns.GetName(descendant.Name.LocalName);
+            }
         }
 
         protected string AttributeValueOrNull(XAttribute attribute)
