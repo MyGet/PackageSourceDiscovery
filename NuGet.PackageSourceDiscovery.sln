@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.FeedDiscovery.Extension", "NuGet.FeedDiscovery.Extension\NuGet.FeedDiscovery.Extension.csproj", "{B030C3A1-357A-4966-8557-7C08488716EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.PackageSourceDiscovery.Extension", "NuGet.PackageSourceDiscovery.Extension\NuGet.PackageSourceDiscovery.Extension.csproj", "{B030C3A1-357A-4966-8557-7C08488716EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F77F6E63-FF4E-4547-96E6-2A95140DF48C}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F77F6E
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.FeedDiscovery.Extension.Tests", "NuGet.FeedDiscovery.Extension.Tests\NuGet.FeedDiscovery.Extension.Tests.csproj", "{B4358C05-C635-4C1D-A4B5-839C03E07B5E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.PackageSourceDiscovery.Extension.Tests", "NuGet.PackageSourceDiscovery.Extension.Tests\NuGet.PackageSourceDiscovery.Extension.Tests.csproj", "{B4358C05-C635-4C1D-A4B5-839C03E07B5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

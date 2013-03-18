@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B030C3A1-357A-4966-8557-7C08488716EC}</ProjectGuid>
+    <ProjectGuid>{B4358C05-C635-4C1D-A4B5-839C03E07B5E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet</RootNamespace>
-    <AssemblyName>NuGet.FeedDiscovery.Extension</AssemblyName>
+    <RootNamespace>NuGet.Test</RootNamespace>
+    <AssemblyName>NuGet.PackageSourceDiscovery.Extension.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -34,41 +34,41 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NuGet, Version=2.2.40207.9053, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="NuGet">
       <HintPath>..\packages\NuGet.CommandLine.2.3.0\tools\NuGet.exe</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit">
+      <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\packages\xunit.extensions.1.9.1\lib\net20\xunit.extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\DiscoverCommand.cs" />
-    <Compile Include="FeedDiscovery.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FeedDiscovery.resx</DependentUpon>
-    </Compile>
-    <Compile Include="FeedDiscoveryConstants.cs" />
-    <Compile Include="PackageSourceDiscovery.cs" />
-    <Compile Include="PackageSourceDiscoveryDocument.cs" />
-    <Compile Include="PackageSourceEndpoint.cs" />
+    <Compile Include="Commands\DiscoverCommandMock.cs" />
+    <Compile Include="Commands\DiscoverCommandTest.cs" />
+    <Compile Include="ExceptionAssert.cs" />
+    <Compile Include="PackageSourceDiscoveryDocumentExtensionsTest.cs" />
+    <Compile Include="PackageSourceDiscoveryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="FeedDiscovery.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>FeedDiscovery.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NuGet.PackageSourceDiscovery.Extension\NuGet.PackageSourceDiscovery.Extension.csproj">
+      <Project>{b030c3a1-357a-4966-8557-7c08488716ec}</Project>
+      <Name>NuGet.PackageSourceDiscovery.Extension</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -4,29 +4,29 @@ using System.Text;
 
 namespace NuGet.Commands
 {
-    [Command(typeof(FeedDiscovery), "discover", "DiscoverCommandDescription", UsageSummaryResourceName = "DiscoverCommandUsageSummary",
+    [Command(typeof(PsdResources), "discover", "DiscoverCommandDescription", UsageSummaryResourceName = "DiscoverCommandUsageSummary",
         MinArgs = 0, MaxArgs = 1)]
     public class DiscoverCommand : Command
     {
         private const string ApiKeyHeader = "NuGet-ApiKey";
 
-        [Option(typeof(FeedDiscovery), "DiscoverCommandUrlDescription")]
+        [Option(typeof(PsdResources), "DiscoverCommandUrlDescription")]
         public string Url { get; set; }
 
-        [Option(typeof(FeedDiscovery), "DiscoverCommandUserNameDescription")]
+        [Option(typeof(PsdResources), "DiscoverCommandUserNameDescription")]
         public string UserName { get; set; }
 
-        [Option(typeof(FeedDiscovery), "DiscoverCommandPasswordDescription")]
+        [Option(typeof(PsdResources), "DiscoverCommandPasswordDescription")]
         public string Password { get; set; }
 
-        [Option(typeof(FeedDiscovery), "DiscoverCommandApiKeyDescription")]
+        [Option(typeof(PsdResources), "DiscoverCommandApiKeyDescription")]
         public string ApiKey { get; set; }
 
         public override void ExecuteCommand()
         {
             if (SourceProvider == null)
             {
-                throw new InvalidOperationException(FeedDiscovery.Error_SourceProviderIsNull);
+                throw new InvalidOperationException(PsdResources.Error_SourceProviderIsNull);
             }
 
             DiscoverPackageSources();
@@ -36,13 +36,13 @@ namespace NuGet.Commands
         {
             if (String.IsNullOrEmpty(Url))
             {
-                throw new CommandLineException(FeedDiscovery.DiscoverCommandUrlRequired);
+                throw new CommandLineException(PsdResources.DiscoverCommandUrlRequired);
             }
 
             Uri uri;
             if (!Uri.TryCreate(Url, UriKind.Absolute, out uri))
             {
-                throw new CommandLineException(FeedDiscovery.DiscoverCommandValidUrlRequired);
+                throw new CommandLineException(PsdResources.DiscoverCommandValidUrlRequired);
             }
 
             ValidateCredentials();
@@ -85,7 +85,7 @@ namespace NuGet.Commands
             }
 
             SourceProvider.SavePackageSources(sourceList);
-            Console.WriteLine(FeedDiscovery.DiscoverCommandSuccessful, counter);
+            Console.WriteLine(PsdResources.DiscoverCommandSuccessful, counter);
         }
 
         private void ValidateCredentials()
@@ -96,7 +96,7 @@ namespace NuGet.Commands
             if (userNameEmpty ^ passwordEmpty)
             {
                 // If only one of them is set, throw.
-                throw new CommandLineException(FeedDiscovery.DiscoverCommandCredentialsRequired);
+                throw new CommandLineException(PsdResources.DiscoverCommandCredentialsRequired);
             }
         }
     }
