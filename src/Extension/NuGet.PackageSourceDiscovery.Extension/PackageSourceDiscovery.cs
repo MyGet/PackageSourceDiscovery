@@ -34,10 +34,10 @@ namespace NuGet
 
             IEnumerable<PackageSourceDiscoveryDocument> discoveryDocuments = DiscoverPackageSourcesFromHtml(uri, title, data);
 
-            if (!discoveryDocuments.Any())
+            if (!discoveryDocuments.Any() && !data.Contains("<html"))
                 discoveryDocuments = DiscoverPackageSourcesFromFeed(uri, title, data);
 
-            if (!discoveryDocuments.Any())
+            if (!discoveryDocuments.Any() && !data.Contains("<html"))
                 discoveryDocuments = DiscoverPackageSourcesFromRsd(data);
 
             return discoveryDocuments;
@@ -52,7 +52,10 @@ namespace NuGet
             if (linkMatches.Count > 0)
             {
                 XDocument htmlDocument = XDocument.Parse(
-                    string.Format(@"<?xml version=""1.0""?><links>{0}</links>", String.Join("", linkMatches.Cast<Match>().Select(m => m.Value))));
+                    string.Format(@"<?xml version=""1.0""?><links>{0}</links>", 
+                        string.Join("", linkMatches.Cast<Match>()
+                            .Where(m => Regex.IsMatch(m.Value, @"<\s*link\s*[^>]*?rel\s*=\s*[""']*nuget*([^""'>]+)[^>]*?>", RegexOptions.IgnoreCase))
+                            .Select(m => m.Value))));
 
                 foreach (XElement link in htmlDocument.Descendants("link"))
                 {

@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using Moq;
+using NuGet.Common;
 using Xunit;
 using Xunit.Extensions;
+using Console = NuGet.Common.Console;
 
 namespace NuGet.Test.Commands
 {
@@ -24,32 +28,36 @@ namespace NuGet.Test.Commands
 
         [Theory]
         [InlineData(new object[] { "foo" })]
-        public void CommandThrowsIfUrlIsInvalidUrl(string url)
+        public void CommandThrowsIfUrlIsUnreachable(string url)
         {
             // Arrange
             var packageSourceProvider = new Mock<IPackageSourceProvider>(MockBehavior.Strict);
             var discoverCommand = new DiscoverCommandMock();
             discoverCommand.SetPackageSourceProvider(packageSourceProvider.Object);
             discoverCommand.Url = url;
-
+                
             // Act and Assert
-            ExceptionAssert.Throws<CommandLineException>(discoverCommand.ExecuteCommand, "The URL specified is invalid. Please provide a valid URL.");
+            ExceptionAssert.Throws<WebException>(discoverCommand.ExecuteCommand, "The remote name could not be resolved: 'foo'");
         }
 
-        //[Theory]
-        //[InlineData("www.xavierdecoster.com")]
-        //[InlineData("http://www.xavierdecoster.com")]
-        //public void CommandDoesNotThrowIfUrlIsValidUrl(string url)
-        //{
-        //    // Arrange
-        //    var packageSourceProvider = new Mock<IPackageSourceProvider>(MockBehavior.Strict);
-        //    var discoverCommand = new DiscoverCommandMock();
-        //    discoverCommand.SetPackageSourceProvider(packageSourceProvider.Object);
-        //    discoverCommand.Url = url;
-        //    Action act = discoverCommand.ExecuteCommand;
+        [Theory]
+        [InlineData("www.xavierdecoster.com")]
+        [InlineData("http://www.xavierdecoster.com")]
+        public void CommandDoesNotThrowIfUrlIsValidUrl(string url)
+        {
+            // Arrange
+            var packageSourceProvider = new Mock<IPackageSourceProvider>(MockBehavior.Strict);
+            packageSourceProvider.Setup(p => p.LoadPackageSources()).Returns(() => new List<PackageSource>());
+            packageSourceProvider.Setup(p => p.SavePackageSources(It.IsAny<IEnumerable<PackageSource>>()));
 
-        //    // Act and Assert
-        //    Assert.DoesNotThrow(() => act());
-        //}
+            var discoverCommand = new DiscoverCommandMock();
+            discoverCommand.Console = new Console();
+            discoverCommand.SetPackageSourceProvider(packageSourceProvider.Object);
+            discoverCommand.Url = url;
+            Action act = discoverCommand.ExecuteCommand;
+
+            // Act and Assert
+            Assert.DoesNotThrow(() => act());
+        }
     }
 }
