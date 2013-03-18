@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>DiscoverPackageSources</id>
+        <version>0.0.10</version>
+        <authors>Maarten Balliauw,Xavier Decoster</authors>
+        <owners>MyGet</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Discover package sources from a given URL. If no URL is given, http://nuget.&lt;networkdomain&gt; will be assumed.</description>
+        <summary>Discover package sources</summary>
+        <tags>discovery discover package sources source feed</tags>
+    </metadata>
+</package>

@@ -1,0 +1,37 @@
+Build started 18/03/2013 9:41:42.
+     1>Project "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.sln" on node 1 (default targets).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Release|Any CPU".
+     1>Project "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.sln" (1) is building "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension.Tests\NuGet.PackageSourceDiscovery.Extension.Tests.csproj" (3) on node 2 (default targets).
+     3>RestorePackages:
+         "C:\TEMP\PackageSourceDiscovery\src\Extension\.nuget\nuget.exe" install "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension.Tests\packages.config" -source "http://www.myget.org/F/nuget-commandline/;https://nuget.org/api/v2/"  -RequireConsent -solutionDir "C:\TEMP\PackageSourceDiscovery\src\Extension\ "
+     1>Project "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.sln" (1) is building "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension\NuGet.PackageSourceDiscovery.Extension.csproj" (2) on node 1 (default targets).
+     2>RestorePackages:
+         "C:\TEMP\PackageSourceDiscovery\src\Extension\.nuget\nuget.exe" install "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension\packages.config" -source "http://www.myget.org/F/nuget-commandline/;https://nuget.org/api/v2/"  -RequireConsent -solutionDir "C:\TEMP\PackageSourceDiscovery\src\Extension\ "
+     3>RestorePackages:
+         All packages listed in packages.config are already installed.
+     2>RestorePackages:
+         All packages listed in packages.config are already installed.
+       CoreResGen:
+         No resources are out of date with respect to their source files. Skipping resource generation.
+       GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         NuGet.PackageSourceDiscovery.Extension -> C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension\bin\Release\NuGet.PackageSourceDiscovery.Extension.dll
+     2>Done Building Project "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension\NuGet.PackageSourceDiscovery.Extension.csproj" (default targets).
+     3>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         NuGet.PackageSourceDiscovery.Extension.Tests -> C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension.Tests\bin\Release\NuGet.PackageSourceDiscovery.Extension.Tests.dll
+     3>Done Building Project "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.Extension.Tests\NuGet.PackageSourceDiscovery.Extension.Tests.csproj" (default targets).
+     1>Done Building Project "C:\TEMP\PackageSourceDiscovery\src\Extension\NuGet.PackageSourceDiscovery.sln" (default targets).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.42
