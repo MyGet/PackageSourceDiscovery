@@ -33,7 +33,7 @@
       <section id="main_content" class="inner">
         <h1>NuGet Package Source Discovery 1.0.0</h1>
 
-<p>NuGet Package Source Discovery (PSD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization.</p>
+<p>NuGet Package Source Discovery (PSD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization by using the blog or website URL.</p>
 
 <p>NuGet Package Source Discovery is an attempt to remove friction from the following scenarios:</p>
 
@@ -41,7 +41,7 @@
 <li>An individual user may have several NuGet feeds spread across the Internet. Some may be on NuGet.org (including curated feeds), some on MyGet and maybe some on my corporate network. How do I easily point my Visual Studio to all my feeds accross different machines? And how do I maintain this configuration?</li>
 <li>An organization may have several feeds internally as well as one on MyGet and some CI packages on TeamCity. How can this organization tell his developers what feeds they can/should use?</li>
 <li>An organization may have a NuGet server containing multiple feeds. How will developers in this organization get a list of available feeds and services?</li>
-</ul><p>For both scenarios, a simple feed discovery mechanism could facilitate this. Such feed discovery mechanism could be any URL out there (even multiple per host).</p>
+</ul><p>For all  scenarios, a simple feed discovery mechanism could facilitate this. Such feed discovery mechanism could be any URL out there (even multiple per host).</p>
 
 <p>As an example, we've implemented the above. Open Visual Studio and open any solution. Then issue the following in the Package Manager Console:</p>
 
@@ -53,7 +53,7 @@
 
 <h2>Request</h2>
 
-<p>An PSD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.</p>
+<p>A PSD request is an HTTP GET to a URL with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.</p>
 
 <h2>Response</h2>
 
@@ -268,132 +268,12 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
 
 <h2>Example Client / Consumer implementation</h2>
 
-<p>The following Client/Consumer implementation only discovers feed endpoints for consuming packages. Push, symbols and API setting elements are ignored. A package producer should probably discover push endpoints as well and store the provided API key for future use.
-The Client/Consumer is implemented using PowerShell.</p>
+<p>Example Client / Consumer implementations can be found in the <a href="https://github.com/myget/PackageSourceDiscovery">PackageSourceDiscovery</a> repository.</p>
 
-<div class="highlight"><pre><span class="k">function</span> <span class="nb">Add-PackageSource</span> <span class="p">{</span>
-    <span class="k">param</span><span class="p">(</span>
-    <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$true</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Name</span><span class="p">,</span>
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$true</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Source</span>
-    <span class="p">)</span>   
-
-    <span class="nv">$configuration</span> <span class="p">=</span> <span class="nb">Get-Content</span> <span class="s2">"$env:AppData\NuGet\NuGet.config"</span>
-    <span class="nv">$configurationXml</span> <span class="p">=</span> <span class="no">[xml]</span><span class="nv">$configuration</span>
-
-    <span class="nv">$sourceToAdd</span> <span class="p">=</span> <span class="nv">$configurationXml</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">"add"</span><span class="p">)</span>
-    <span class="nv">$sourceToAdd</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s2">"key"</span><span class="p">,</span> <span class="nv">$Name</span><span class="p">)</span><span class="err">;</span>
-    <span class="nv">$sourceToAdd</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="nv">$Source</span><span class="p">)</span><span class="err">;</span>
-    <span class="nv">$configurationXml</span><span class="p">.</span><span class="n">configuration</span><span class="p">.</span><span class="n">packageSources</span><span class="p">.</span><span class="n">appendChild</span><span class="p">(</span><span class="nv">$sourceToAdd</span><span class="p">)</span> <span class="p">|</span> <span class="nb">Out-Null</span>
-
-    <span class="nv">$configurationXml</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"$env:AppData\NuGet\NuGet.config"</span><span class="p">)</span>
-
-    <span class="nb">Write-Host</span> <span class="s2">"Added feed `"$Name`" ($Source)"</span>
-<span class="p">}</span>
-
-<span class="k">function</span> <span class="nb">Get-PackageSource</span> <span class="p">{</span>
-    <span class="k">param</span><span class="p">(</span>
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$false</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Name</span>
-    <span class="p">)</span>   
-
-    <span class="nv">$configuration</span> <span class="p">=</span> <span class="nb">Get-Content</span> <span class="s2">"$env:AppData\NuGet\NuGet.config"</span>
-    <span class="nv">$configurationXml</span> <span class="p">=</span> <span class="no">[xml]</span><span class="nv">$configuration</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="nv">$Name</span> <span class="o">-ne</span> <span class="nv">$null</span> <span class="o">-and</span> <span class="nv">$Name</span> <span class="o">-ne</span> <span class="s2">""</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nv">$configurationXml</span><span class="p">.</span><span class="n">configuration</span><span class="p">.</span><span class="n">packageSources</span><span class="p">.</span><span class="n">add</span> <span class="p">|</span> <span class="n">where</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">key</span> <span class="o">-eq</span> <span class="nv">$Name</span><span class="p">}</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="err">@</span><span class="p">{</span><span class="n">Label</span><span class="p">=</span><span class="s2">"Name"</span><span class="err">;</span> <span class="n">Expression</span><span class="p">={</span><span class="nv">$_</span><span class="p">.</span><span class="n">key</span><span class="p">}},</span> <span class="err">@</span><span class="p">{</span><span class="n">Label</span><span class="p">=</span><span class="s2">"Source"</span><span class="err">;</span> <span class="n">Expression</span><span class="p">={</span><span class="nv">$_</span><span class="p">.</span><span class="n">value</span><span class="p">}}</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nv">$null</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="k">function</span> <span class="n">Discover-PackageSources</span> <span class="p">{</span>
-    <span class="k">param</span><span class="p">(</span>
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$false</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Url</span><span class="p">,</span>
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$false</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Username</span><span class="p">,</span> 
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$false</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Password</span><span class="p">,</span> 
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$false</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$ApiKey</span><span class="p">,</span> 
-        <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span> <span class="p">=</span> <span class="nv">$false</span><span class="p">)]</span>
-        <span class="no">[string]</span><span class="nv">$Title</span>
-    <span class="p">)</span>   
-
-    <span class="k">if</span> <span class="p">(</span><span class="nv">$Url</span> <span class="o">-eq</span> <span class="s2">""</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nv">$dnsDomains</span> <span class="p">=</span> <span class="nb">Get-WmiObject</span> <span class="n">-Class</span> <span class="n">Win32_NetworkAdapterConfiguration</span> <span class="n">-Filter</span> <span class="n">IPEnabled</span><span class="p">=</span><span class="n">TRUE</span> <span class="n">-ComputerName</span> <span class="p">.</span> <span class="p">|</span> <span class="p">%{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">DNSDomain</span> <span class="p">}</span>
-        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$dnsDomain</span> <span class="k">in</span> <span class="nv">$dnsDomains</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nv">$autoDiscoveryUrl</span> <span class="p">=</span> <span class="s2">"http://nuget.$dnsDomain"</span>
-            <span class="nb">Write-Host</span> <span class="s2">"Trying feed autodiscovery from $autoDiscoveryUrl..."</span>
-            <span class="k">try</span> <span class="p">{</span>
-                <span class="n">Discover-PackageSources</span> <span class="n">-Url</span> <span class="nv">$autoDiscoveryUrl</span> <span class="n">-Username</span> <span class="nv">$Username</span> <span class="n">-Password</span> <span class="nv">$Password</span>
-            <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-                <span class="nb">Write-Host</span> <span class="s2">"Could not autodiscover feeds."</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-
-    <span class="nv">$relRegex</span> <span class="p">=</span> <span class="s2">"&lt;\s*link\s*[^&gt;]*?rel\s*=\s*[`"']*([^`"'&gt;]+)[^&gt;]*?&gt;"</span>
-    <span class="nv">$hrefRegex</span> <span class="p">=</span> <span class="s2">"&lt;\s*link\s*[^&gt;]*?href\s*=\s*[`"']*([^`"'&gt;]+)[^&gt;]*?&gt;"</span>
-    <span class="nv">$titleRegex</span> <span class="p">=</span> <span class="s2">"&lt;\s*link\s*[^&gt;]*?title\s*=\s*[`"']*([^`"'&gt;]+)[^&gt;]*?&gt;"</span>
-
-    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$null</span>
-
-    <span class="nv">$webclient</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nv">$Username</span> <span class="o">-ne</span> <span class="s2">""</span><span class="p">)</span> <span class="p">{</span>
-       <span class="nv">$credentials</span> <span class="p">=</span> <span class="no">[System.Convert]</span><span class="err">::</span><span class="n">ToBase64String</span><span class="p">(</span><span class="no">[System.Text.Encoding]</span><span class="err">::</span><span class="n">ASCII</span><span class="p">.</span><span class="n">GetBytes</span><span class="p">(</span><span class="nv">$Username</span> <span class="p">+</span> <span class="s2">":"</span> <span class="p">+</span> <span class="nv">$Password</span><span class="p">))</span>
-        <span class="nv">$webClient</span><span class="p">.</span><span class="n">Headers</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="s2">"Authorization"</span><span class="p">,</span> <span class="s2">"Basic $credentials"</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nv">$ApiKey</span> <span class="o">-ne</span> <span class="s2">""</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nv">$webClient</span><span class="p">.</span><span class="n">Headers</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="s2">"X-NuGet-ApiKey"</span><span class="p">,</span> <span class="nv">$ApiKey</span><span class="p">)</span> <span class="c"># for backwards compatibility</span>
-        <span class="nv">$webClient</span><span class="p">.</span><span class="n">Headers</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="s2">"NuGet-ApiKey"</span><span class="p">,</span> <span class="nv">$ApiKey</span><span class="p">)</span>
-    <span class="p">}</span>
-
-    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$webclient</span><span class="p">.</span><span class="n">DownloadString</span><span class="p">(</span><span class="nv">$Url</span><span class="p">)</span>
-
-    <span class="nv">$resultingMatches</span> <span class="p">=</span> <span class="no">[Regex]</span><span class="err">::</span><span class="n">Matches</span><span class="p">(</span><span class="nv">$data</span><span class="p">,</span> <span class="nv">$hrefRegex</span><span class="p">,</span> <span class="s2">"IgnoreCase"</span><span class="p">)</span>
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$match</span> <span class="k">in</span> <span class="nv">$resultingMatches</span><span class="p">)</span> <span class="p">{</span>
-       <span class="nv">$rel</span> <span class="p">=</span> <span class="no">[Regex]</span><span class="err">::</span><span class="n">Match</span><span class="p">(</span><span class="nv">$match</span><span class="p">,</span> <span class="nv">$relRegex</span><span class="p">,</span> <span class="s2">"IgnoreCase"</span><span class="p">).</span><span class="n">Groups</span><span class="p">[</span><span class="n">1</span><span class="p">].</span><span class="n">Value</span>
-       <span class="nv">$href</span> <span class="p">=</span> <span class="nv">$match</span><span class="p">.</span><span class="n">Groups</span><span class="p">[</span><span class="n">1</span><span class="p">].</span><span class="n">Value</span>
-       <span class="nv">$title</span> <span class="p">=</span> <span class="no">[Regex]</span><span class="err">::</span><span class="n">Match</span><span class="p">(</span><span class="nv">$match</span><span class="p">,</span> <span class="nv">$titleRegex</span><span class="p">,</span> <span class="s2">"IgnoreCase"</span><span class="p">).</span><span class="n">Groups</span><span class="p">[</span><span class="n">1</span><span class="p">].</span><span class="n">Value</span>
-
-       <span class="k">if</span> <span class="p">(</span><span class="nv">$rel</span> <span class="o">-eq</span> <span class="s2">"nuget"</span><span class="p">)</span> <span class="p">{</span>
-           <span class="n">Discover-PackageSources</span> <span class="n">-Url</span> <span class="nv">$match</span><span class="p">.</span><span class="n">Groups</span><span class="p">[</span><span class="n">1</span><span class="p">].</span><span class="n">Value</span><span class="p">.</span><span class="n">Trim</span><span class="p">()</span> <span class="n">-Username</span> <span class="nv">$Username</span> <span class="n">-Password</span> <span class="nv">$Password</span> <span class="n">-Title</span> <span class="nv">$title</span>
-       <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="k">try</span> <span class="p">{</span>
-        <span class="nv">$xml</span> <span class="p">=</span> <span class="no">[xml]</span><span class="nv">$data</span>
-
-        <span class="k">if</span> <span class="p">(</span><span class="nv">$xml</span><span class="p">.</span><span class="n">service</span> <span class="o">-ne</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span>
-            <span class="c"># Regular feed</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nv">$Title</span> <span class="o">-eq</span> <span class="s2">""</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nv">$Title</span> <span class="p">=</span> <span class="nb">Split-Path</span> <span class="nv">$Url</span> <span class="n">-Leaf</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="p">((</span><span class="nb">Get-PackageSource</span> <span class="n">-Name</span> <span class="nv">$Title</span><span class="p">)</span> <span class="o">-eq</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span>
-                <span class="nb">Add-PackageSource</span> <span class="n">-Name</span> <span class="nv">$Title</span> <span class="n">-Source</span> <span class="nv">$Url</span>
-            <span class="p">}</span>
-        <span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span><span class="nv">$xml</span><span class="p">.</span><span class="n">rsd</span> <span class="o">-ne</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span>
-            <span class="c"># RSD document</span>
-            <span class="k">foreach</span> <span class="p">(</span><span class="nv">$service</span> <span class="k">in</span> <span class="nv">$xml</span><span class="p">.</span><span class="n">rsd</span><span class="p">.</span><span class="n">service</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">if</span> <span class="p">((</span><span class="nb">Get-PackageSource</span> <span class="n">-Name</span> <span class="nv">$service</span><span class="p">.</span><span class="n">title</span><span class="p">)</span> <span class="o">-eq</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$endpoint</span> <span class="k">in</span> <span class="nv">$service</span><span class="p">.</span><span class="n">apis</span><span class="p">.</span><span class="n">api</span><span class="p">)</span> <span class="p">{</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="nv">$endpoint</span><span class="p">.</span><span class="n">name</span> <span class="o">-eq</span> <span class="s2">"nuget-v2-packages"</span> <span class="o">-and</span> <span class="nv">$endpoint</span><span class="p">.</span><span class="n">preferred</span> <span class="o">-eq</span> <span class="s2">"true"</span> <span class="p">)</span> <span class="p">{</span>
-                            <span class="nb">Add-PackageSource</span> <span class="n">-Name</span> <span class="nv">$service</span><span class="p">.</span><span class="n">title</span> <span class="n">-Source</span> <span class="nv">$endpoint</span><span class="p">.</span><span class="n">apiLink</span>
-                        <span class="p">}</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-<p>Also <a href="https://github.com/myget/PackageSourceDiscovery/wiki">check our Wiki</a> for details on clients implementing this spec already.</p>
+<ul>
+<li><a href="https://github.com/myget/PackageSourceDiscovery/tree/master/src/CmdLet">A PowerShell CmdLet implementing the PSD spec</a></li>
+<li><a href="https://github.com/myget/PackageSourceDiscovery/tree/master/src/Extension">A NuGet.exe extension implementing the PSD spec</a></li>
+</ul><p>Also <a href="https://github.com/myget/PackageSourceDiscovery/wiki">check our Wiki</a> for details on clients implementing this spec already.</p>
 
 <h2>License</h2>
 
