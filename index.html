@@ -1,49 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>FeedDiscovery by myget</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="PackageSourceDiscovery  : The NuGet Package Source Discovery Specification" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>PackageSourceDiscovery </title>
   </head>
+
   <body>
 
-      <header>
-        <h1>FeedDiscovery</h1>
-        <p>The NuGet Feed Discovery Specification</p>
-      </header>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/myget/PackageSourceDiscovery">View on GitHub</a>
 
-      <div id="banner">
-        <span id="logo"></span>
+          <h1 id="project_title">PackageSourceDiscovery </h1>
+          <h2 id="project_tagline">The NuGet Package Source Discovery Specification</h2>
 
-        <a href="https://github.com/myget/FeedDiscovery" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/myget/FeedDiscovery/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/myget/FeedDiscovery/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/myget/PackageSourceDiscovery/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/myget/PackageSourceDiscovery/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
 
-    <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
-      <section>
-        <h1>NuGet Feed Discovery 1.0.0-alpha001</h1>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>NuGet Package Source Discovery 1.0.0</h1>
 
-<p>NuGet Feed Discovery (NFD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization.</p>
+<p>NuGet Package Source Discovery (PSD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization.</p>
 
-<p>NuGet Feed Discovery is an attempt to remove friction from the following scenarios:</p>
+<p>NuGet Package Source Discovery is an attempt to remove friction from the following scenarios:</p>
 
 <ul>
 <li>An individual user may have several NuGet feeds spread across the Internet. Some may be on NuGet.org (including curated feeds), some on MyGet and maybe some on my corporate network. How do I easily point my Visual Studio to all my feeds accross different machines? And how do I maintain this configuration?</li>
@@ -57,17 +49,17 @@
 <span class="n">Discover-PackageSources</span> <span class="n">-Url</span> <span class="s2">"http://www.myget.org/gallery"</span>
 </pre></div>
 
-<p>Close and re-open Visual Studio and check your package sources. The URL has been verified for a NFD manifest URL and the manifest has been parsed. Matching feeds have been installed into the NuGet.config file, in this case all feeds listed in the MyGet gallery.</p>
+<p>Close and re-open Visual Studio and check your package sources. The URL has been verified for a PSD manifest URL and the manifest has been parsed. Matching feeds have been installed into the NuGet.config file, in this case all feeds listed in the MyGet gallery.</p>
 
 <h2>Request</h2>
 
-<p>An NFD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.</p>
+<p>An PSD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.</p>
 
 <h2>Response</h2>
 
-<p>The response will be an XML document following the <strong>Really Simple Discovery</strong> (RSD) RFC as described on <a href="https://github.com/danielberlinger/rsd">https://github.com/danielberlinger/rsd</a>. Since not all required metadata can be obtained from the RSD format, the <a href="http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements">Dublin Core schema</a> is present in the NFD response as well.</p>
+<p>The response will be an XML document following the <strong>Really Simple Discovery</strong> (RSD) RFC as described on <a href="https://github.com/danielberlinger/rsd">https://github.com/danielberlinger/rsd</a>. Since not all required metadata can be obtained from the RSD format, the <a href="http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements">Dublin Core schema</a> is present in the PSD response as well.</p>
 
-<p>Vendors and open source projects are allowed to add their own schema to the NFD discovery document however the manifest described below should be respected at all times.</p>
+<p>Vendors and open source projects are allowed to add their own schema to the PSD discovery document however the manifest described below should be respected at all times.</p>
 
 <p>An example manifest could be:</p>
 
@@ -185,16 +177,16 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
 
 <p>All feeds that the requesting user has read access to should be returned. If the user is anonymous, feeds that require authentication should be omitted.</p>
 
-<p>If the user is logged in, either controlled by basic authentication or using the <code>NuGet-ApiKey</code> HttpHeader, the server should return every feed the user has access to as well as feed specific settings such as API keys and so on. The NFD client can use these specifics to preconfigure the NuGet.config file on the user's machine.</p>
+<p>If the user is logged in, either controlled by basic authentication or using the <code>NuGet-ApiKey</code> HttpHeader, the server should return every feed the user has access to as well as feed specific settings such as API keys and so on. The PSD client can use these specifics to preconfigure the NuGet.config file on the user's machine.</p>
 
 <h2>Client / Consumer Implementation Guidelines</h2>
 
 <p>The client should respect the following flow of discovering feeds:</p>
 
 <ul>
-<li>If no NFD is given, the client should assume <code>http://nuget.&lt;currentdomain&gt;</code> as the NFD server.</li>
+<li>If no PSD is given, the client should assume <code>http://nuget.&lt;currentdomain&gt;</code> as the PSD server.</li>
 <li>
-<p>The NFD URL is accesses and downloaded. It can contain:</p>
+<p>The PSD URL is accesses and downloaded. It can contain:</p>
 
 <ul>
 <li>HTML containing a tag such as </li>
@@ -205,7 +197,7 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
       <span class="na">href=</span><span class="s">"http://myget.org/discovery/feed/googleanalyticstracker"</span><span class="nt">/&gt;</span>
 </pre></div>
 
-<p>This URL should be followed and the NFD manifest parsed. Note that multiple tags may exist and should all be parsed.</p>
+<p>This URL should be followed and the PSD manifest parsed. Note that multiple tags may exist and should all be parsed.</p>
 
 <ul>
 <li>HTML containing a tag such as</li>
@@ -219,12 +211,12 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
 <p>This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.</p>
 
 <ul>
-<li>If the URL directly points to a NuGet Feed Discovery Manifest, we can immediately parse it.</li>
+<li>If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.</li>
 </ul>
 </li>
-</ul><p>The client should support entry of a complete NFD URL <code>&lt;protocol&gt;://&lt;host name&gt;:&lt;port&gt;/&lt;path&gt;</code> but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a NFD manifest or contains a <code>&lt;link rel="nuget"/&gt;</code> tag.</p>
+</ul><p>The client should support entry of a complete PSD URL <code>&lt;protocol&gt;://&lt;host name&gt;:&lt;port&gt;/&lt;path&gt;</code> but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a PSD manifest or contains a <code>&lt;link rel="nuget"/&gt;</code> tag.</p>
 
-<p>Depending on security, consuming an NFD manifest using the <code>NuGet-ApiKey</code> header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to <a href="https://www.myget.org/Discovery/Feed/googleanalyticstracker:">https://www.myget.org/Discovery/Feed/googleanalyticstracker:</a></p>
+<p>Depending on security, consuming an PSD manifest using the <code>NuGet-ApiKey</code> header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to <a href="https://www.myget.org/Discovery/Feed/googleanalyticstracker:">https://www.myget.org/Discovery/Feed/googleanalyticstracker:</a></p>
 
 <div class="highlight"><pre><span class="nt">&lt;rsd</span> <span class="na">version=</span><span class="s">"1.0"</span> <span class="na">xmlns:dc=</span><span class="s">"http://purl.org/dc/elements/1.1/"</span> <span class="na">xmlns=</span><span class="s">"http://archipelago.phrasewise.com/rsd"</span><span class="nt">&gt;</span>
   <span class="nt">&lt;service&gt;</span>
@@ -401,19 +393,33 @@ The Client/Consumer is implemented using PowerShell.</p>
 <span class="p">}</span>
 </pre></div>
 
-<p>Also <a href="https://github.com/myget/FeedDiscovery/wiki" alt="NuGet Feed Discovery Wiki" target="_blank">check our Wiki</a> for details on clients implementing this spec already.</p>
+<p>Also <a href="https://github.com/myget/PackageSourceDiscovery/wiki">check our Wiki</a> for details on clients implementing this spec already.</p>
 
 <h2>License</h2>
 
-<p>This repository, including the NFD spec and clients, are licensed under the <a href="https://github.com/myget/FeedDiscovery/blob/master/LICENSE.md" alt="NuGet Feed Discovery License" target="_blank">Apache v2.0 license</a>.</p>
-
+<p>This repository, including the PSD spec and clients, are licensed under the <a href="https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md">Apache v2.0 license</a>.</p>
       </section>
-      <footer>
-        <p>Project maintained by <a href="https://github.com/myget">myget</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">PackageSourceDiscovery  maintained by <a href="https://github.com/myget">myget</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-576836-11");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
   </body>
 </html>
