@@ -13,9 +13,9 @@ if not "%PackageVersion%" == "" (
 
 mkdir Build
 mkdir Build\Extension
-bin\nuget.exe pack "src\Extension\NuGet.PackageSourceDiscovery.Extension\NuGet.PackageSourceDiscovery.Extension.csproj" -symbols -o Build\Extension -p Configuration="%config%" %version%
+tools\nuget.exe pack "src\Extension\NuGet.PackageSourceDiscovery.Extension\NuGet.PackageSourceDiscovery.Extension.csproj" -symbols -o Build\Extension -p Configuration="%config%" %version%
 copy src\Extension\NuGet.PackageSourceDiscovery.Extension\bin\%config%\*.dll Build\Extension
 copy src\Extension\NuGet.PackageSourceDiscovery.Extension\bin\%config%\*.pdb Build\Extension
 
 mkdir Build\CmdLet
-bin\nuget.exe pack "src\CmdLet\DiscoverPackageSources.nuspec" -o Build\CmdLet -p SolutionDir=%cd% %version%
+tools\nuget.exe pack "src\CmdLet\DiscoverPackageSources.nuspec" -o Build\CmdLet -p SolutionDir=%cd% %version%
