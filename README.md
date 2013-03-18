@@ -1,6 +1,6 @@
 # NuGet Package Source Discovery 1.0.0
 
-NuGet Package Source Discovery (PSD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization.
+NuGet Package Source Discovery (PSD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization by using the blog or website URL.
 
 NuGet Package Source Discovery is an attempt to remove friction from the following scenarios:
 
@@ -8,7 +8,7 @@ NuGet Package Source Discovery is an attempt to remove friction from the followi
 * An organization may have several feeds internally as well as one on MyGet and some CI packages on TeamCity. How can this organization tell his developers what feeds they can/should use?
 * An organization may have a NuGet server containing multiple feeds. How will developers in this organization get a list of available feeds and services?
 
-For both scenarios, a simple feed discovery mechanism could facilitate this. Such feed discovery mechanism could be any URL out there (even multiple per host).
+For all  scenarios, a simple feed discovery mechanism could facilitate this. Such feed discovery mechanism could be any URL out there (even multiple per host).
 
 As an example, we've implemented the above. Open Visual Studio and open any solution. Then issue the following in the Package Manager Console:
 
@@ -21,7 +21,7 @@ Close and re-open Visual Studio and check your package sources. The URL has been
 
 ## Request
 
-An PSD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.
+A PSD request is an HTTP GET to a URL with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.
 
 ## Response
 
@@ -231,136 +231,17 @@ The authenticated version of https://www.myget.org/Discovery/Feed/googleanalytic
 
 ## Example Client / Consumer implementation
 
-The following Client/Consumer implementation only discovers feed endpoints for consuming packages. Push, symbols and API setting elements are ignored. A package producer should probably discover push endpoints as well and store the provided API key for future use.
-The Client/Consumer is implemented using PowerShell.
-
-```powershell
-function Add-PackageSource {
-    param(
-  	[parameter(Mandatory = $true)]
-		[string]$Name,
-		[parameter(Mandatory = $true)]
-		[string]$Source
-    )   
-
-	$configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
-	$configurationXml = [xml]$configuration
-
-	$sourceToAdd = $configurationXml.createElement("add")
-	$sourceToAdd.SetAttribute("key", $Name);
-	$sourceToAdd.SetAttribute("value", $Source);
-	$configurationXml.configuration.packageSources.appendChild($sourceToAdd) | Out-Null
-
-	$configurationXml.save("$env:AppData\NuGet\NuGet.config")
-
-	Write-Host "Added feed `"$Name`" ($Source)"
-}
-
-function Get-PackageSource {
-    param(
-		[parameter(Mandatory = $false)]
-		[string]$Name
-    )   
-	
-	$configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
-	$configurationXml = [xml]$configuration
-	
-	if ($Name -ne $null -and $Name -ne "") {
-		return $configurationXml.configuration.packageSources.add | where { $_.key -eq $Name} | Format-Table @{Label="Name"; Expression={$_.key}}, @{Label="Source"; Expression={$_.value}}
-	} else {
-		return $null
-	}
-}
-
-function Discover-PackageSources {
-    param(
-		[parameter(Mandatory = $false)]
-		[string]$Url,
-		[parameter(Mandatory = $false)]
-		[string]$Username, 
-		[parameter(Mandatory = $false)]
-		[string]$Password, 
-		[parameter(Mandatory = $false)]
-		[string]$ApiKey, 
-		[parameter(Mandatory = $false)]
-		[string]$Title
-    )   
-
-	if ($Url -eq "") {
-		$dnsDomains = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=TRUE -ComputerName . | %{ $_.DNSDomain }
-		foreach ($dnsDomain in $dnsDomains) {
-			$autoDiscoveryUrl = "http://nuget.$dnsDomain"
-			Write-Host "Trying feed autodiscovery from $autoDiscoveryUrl..."
-			try {
-				Discover-PackageSources -Url $autoDiscoveryUrl -Username $Username -Password $Password
-			} catch {
-				Write-Host "Could not autodiscover feeds."
-			}
-		}
-		return
-	}
-	
-	$relRegex = "<\s*link\s*[^>]*?rel\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
-	$hrefRegex = "<\s*link\s*[^>]*?href\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
-	$titleRegex = "<\s*link\s*[^>]*?title\s*=\s*[`"']*([^`"'>]+)[^>]*?>"
-
-	$data = $null
-
-	$webclient = new-object System.Net.WebClient
-	if ($Username -ne "") {
-	   $credentials = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Username + ":" + $Password))
-        $webClient.Headers.Add("Authorization", "Basic $credentials")
-	}
-	if ($ApiKey -ne "") {
-		$webClient.Headers.Add("X-NuGet-ApiKey", $ApiKey) # for backwards compatibility
-		$webClient.Headers.Add("NuGet-ApiKey", $ApiKey)
-	}
- 
-	$data = $webclient.DownloadString($Url)
-
-	$resultingMatches = [Regex]::Matches($data, $hrefRegex, "IgnoreCase")
-	foreach ($match in $resultingMatches) {
-	   $rel = [Regex]::Match($match, $relRegex, "IgnoreCase").Groups[1].Value
-	   $href = $match.Groups[1].Value
-	   $title = [Regex]::Match($match, $titleRegex, "IgnoreCase").Groups[1].Value
-
-	   if ($rel -eq "nuget") {
-	       Discover-PackageSources -Url $match.Groups[1].Value.Trim() -Username $Username -Password $Password -Title $title
-	   }
-	}
-	
-	try {
-		$xml = [xml]$data
-		
-		if ($xml.service -ne $null) {
-		    # Regular feed
-		    if ($Title -eq "") {
-		        $Title = Split-Path $Url -Leaf
-		    }
-		    if ((Get-PackageSource -Name $Title) -eq $null) {
-		        Add-PackageSource -Name $Title -Source $Url
-		    }
-		} elseif ($xml.rsd -ne $null) {
-		    # RSD document
-		    foreach ($service in $xml.rsd.service) {
-    		    if ((Get-PackageSource -Name $service.title) -eq $null) {
-    			    foreach ($endpoint in $service.apis.api) {
-    				    if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
-    				    	Add-PackageSource -Name $service.title -Source $endpoint.apiLink
-    				    }
-    			    }
-    		    }
-		    }
-		}
-	} catch {
-	}
-}
-```
+Example Client / Consumer implementations can be found in the [PackageSourceDiscovery][2] repository.
+* [A PowerShell CmdLet implementing the PSD spec][3]
+* [A NuGet.exe extension implementing the PSD spec][4]
 
 Also [check our Wiki][1] for details on clients implementing this spec already.
 
 ## License
-This repository, including the PSD spec and clients, are licensed under the [Apache v2.0 license][2].
+This repository, including the PSD spec and clients, are licensed under the [Apache v2.0 license][5].
 
 [1]: https://github.com/myget/PackageSourceDiscovery/wiki
-[2]: https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md
+[2]: https://github.com/myget/PackageSourceDiscovery
+[3]: https://github.com/myget/PackageSourceDiscovery/tree/master/src/CmdLet
+[4]: https://github.com/myget/PackageSourceDiscovery/tree/master/src/Extension
+[5]: https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md
