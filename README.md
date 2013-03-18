@@ -1,8 +1,8 @@
-# NuGet Feed Discovery 1.0.0-alpha001
+# NuGet Package Source Discovery 1.0.0
 
-NuGet Feed Discovery (NFD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization.
+NuGet Package Source Discovery (PSD) allows for NuGet-based clients tools to discover the feeds that are hosted by a user or organization.
 
-NuGet Feed Discovery is an attempt to remove friction from the following scenarios:
+NuGet Package Source Discovery is an attempt to remove friction from the following scenarios:
 
 * An individual user may have several NuGet feeds spread across the Internet. Some may be on NuGet.org (including curated feeds), some on MyGet and maybe some on my corporate network. How do I easily point my Visual Studio to all my feeds accross different machines? And how do I maintain this configuration?
 * An organization may have several feeds internally as well as one on MyGet and some CI packages on TeamCity. How can this organization tell his developers what feeds they can/should use?
@@ -17,17 +17,17 @@ Install-Package DiscoverPackageSources
 Discover-PackageSources -Url "http://www.myget.org/gallery"
 ```
 
-Close and re-open Visual Studio and check your package sources. The URL has been verified for a NFD manifest URL and the manifest has been parsed. Matching feeds have been installed into the NuGet.config file, in this case all feeds listed in the MyGet gallery.
+Close and re-open Visual Studio and check your package sources. The URL has been verified for a PSD manifest URL and the manifest has been parsed. Matching feeds have been installed into the NuGet.config file, in this case all feeds listed in the MyGet gallery.
 
 ## Request
 
-An NFD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.
+An PSD request is an HTTP GET to an NDF manifest file with optional authentication and an optional NuGet-ApiKey HTTP Header. There are no filtering or searching options at this time.
 
 ## Response
 
-The response will be an XML document following the **Really Simple Discovery** (RSD) RFC as described on https://github.com/danielberlinger/rsd. Since not all required metadata can be obtained from the RSD format, the [Dublin Core schema](http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements) is present in the NFD response as well.
+The response will be an XML document following the **Really Simple Discovery** (RSD) RFC as described on https://github.com/danielberlinger/rsd. Since not all required metadata can be obtained from the RSD format, the [Dublin Core schema](http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements) is present in the PSD response as well.
 
-Vendors and open source projects are allowed to add their own schema to the NFD discovery document however the manifest described below should be respected at all times.
+Vendors and open source projects are allowed to add their own schema to the PSD discovery document however the manifest described below should be respected at all times.
 
 An example manifest could be:
 
@@ -143,14 +143,14 @@ All feeds should contain an Id.
 
 All feeds that the requesting user has read access to should be returned. If the user is anonymous, feeds that require authentication should be omitted.
 
-If the user is logged in, either controlled by basic authentication or using the `NuGet-ApiKey` HttpHeader, the server should return every feed the user has access to as well as feed specific settings such as API keys and so on. The NFD client can use these specifics to preconfigure the NuGet.config file on the user's machine.
+If the user is logged in, either controlled by basic authentication or using the `NuGet-ApiKey` HttpHeader, the server should return every feed the user has access to as well as feed specific settings such as API keys and so on. The PSD client can use these specifics to preconfigure the NuGet.config file on the user's machine.
 
 ## Client / Consumer Implementation Guidelines
 
 The client should respect the following flow of discovering feeds:
 
-* If no NFD is given, the client should assume `http://nuget.<currentdomain>` as the NFD server.
-* The NFD URL is accesses and downloaded. It can contain:
+* If no PSD is given, the client should assume `http://nuget.<currentdomain>` as the PSD server.
+* The PSD URL is accesses and downloaded. It can contain:
   * HTML containing a tag such as 
 
 	```html
@@ -160,7 +160,7 @@ The client should respect the following flow of discovering feeds:
           href="http://myget.org/discovery/feed/googleanalyticstracker"/>
 	```
 
-	This URL should be followed and the NFD manifest parsed. Note that multiple tags may exist and should all be parsed.
+	This URL should be followed and the PSD manifest parsed. Note that multiple tags may exist and should all be parsed.
 	
   * HTML containing a tag such as
 
@@ -173,11 +173,11 @@ The client should respect the following flow of discovering feeds:
 
 	This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.
 	
-  * If the URL directly points to a NuGet Feed Discovery Manifest, we can immediately parse it.
+  * If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.
 
-The client should support entry of a complete NFD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a NFD manifest or contains a `<link rel="nuget"/>` tag.
+The client should support entry of a complete PSD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a PSD manifest or contains a `<link rel="nuget"/>` tag.
 
-Depending on security, consuming an NFD manifest using the `NuGet-ApiKey` header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to https://www.myget.org/Discovery/Feed/googleanalyticstracker:
+Depending on security, consuming an PSD manifest using the `NuGet-ApiKey` header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to https://www.myget.org/Discovery/Feed/googleanalyticstracker:
 
 ```xml
 <rsd version="1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://archipelago.phrasewise.com/rsd">
@@ -360,7 +360,7 @@ function Discover-PackageSources {
 Also [check our Wiki][1] for details on clients implementing this spec already.
 
 ## License
-This repository, including the NFD spec and clients, are licensed under the [Apache v2.0 license][2].
+This repository, including the PSD spec and clients, are licensed under the [Apache v2.0 license][2].
 
-[1]: https://github.com/myget/FeedDiscovery/wiki
-[2]: https://github.com/myget/FeedDiscovery/blob/master/LICENSE.md
+[1]: https://github.com/myget/PackageSourceDiscovery/wiki
+[2]: https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md
