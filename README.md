@@ -150,7 +150,7 @@ If the user is logged in, either controlled by basic authentication or using the
 The client should respect the following flow of discovering feeds:
 
 * If no PSD is given, the client should assume `http://nuget.<currentdomain>` as the PSD server.
-* The PSD URL is accesses and downloaded. It can contain:
+* The PSD URL is accessed and downloaded. It can contain:
   * HTML containing a tag such as 
 
 	```html
@@ -173,7 +173,7 @@ The client should respect the following flow of discovering feeds:
 
 	This URL should be treated as a NuGet feed and added as-is, using the title attribute as the feed's title in NuGet package source list. No further metadata can be discovered for this feed. Note that multiple tags may exist.
 	
-  * If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.
+* If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.
 
 The client should support entry of a complete PSD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a PSD manifest or contains a `<link rel="nuget"/>` tag.
 
