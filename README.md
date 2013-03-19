@@ -237,6 +237,9 @@ Example Client / Consumer implementations can be found in the [PackageSourceDisc
 
 Also [check our Wiki][1] for details on clients implementing this spec already.
 
+## Providers implementing the specification
+* [MyGet][6] has several public PSD endpoints
+
 ## License
 This repository, including the PSD spec and clients, are licensed under the [Apache v2.0 license][5].
 
@@ -245,3 +248,4 @@ This repository, including the PSD spec and clients, are licensed under the [Apa
 [3]: https://github.com/myget/PackageSourceDiscovery/tree/master/src/CmdLet
 [4]: https://github.com/myget/PackageSourceDiscovery/tree/master/src/Extension
 [5]: https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md
+[6]: http://blog.myget.org/post/2013/03/18/Support-for-Package-Source-Discovery-draft.aspx
