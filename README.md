@@ -219,7 +219,7 @@ The authenticated version of https://www.myget.org/Discovery/Feed/googleanalytic
           <setting name="apiKey">530c14a6-6ce5-47d0-8f14-9daab627aa38</setting>
         </settings>
       </api>
-      <api name="symbols-v2-push" blogID="" preferred="true" apiLink="http://nuget.gw.symbolsource.org/MyGet/googleanalyticstracker">
+      <api name="symbols-v1-push" blogID="" preferred="true" apiLink="http://nuget.gw.symbolsource.org/MyGet/googleanalyticstracker">
         <settings>
           <setting name="apiKey">abcdefghijklmnop</setting>
         </settings>
