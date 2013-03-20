@@ -253,7 +253,7 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
           <span class="nt">&lt;setting</span> <span class="na">name=</span><span class="s">"apiKey"</span><span class="nt">&gt;</span>530c14a6-6ce5-47d0-8f14-9daab627aa38<span class="nt">&lt;/setting&gt;</span>
         <span class="nt">&lt;/settings&gt;</span>
       <span class="nt">&lt;/api&gt;</span>
-      <span class="nt">&lt;api</span> <span class="na">name=</span><span class="s">"symbols-v2-push"</span> <span class="na">blogID=</span><span class="s">""</span> <span class="na">preferred=</span><span class="s">"true"</span> <span class="na">apiLink=</span><span class="s">"http://nuget.gw.symbolsource.org/MyGet/googleanalyticstracker"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;api</span> <span class="na">name=</span><span class="s">"symbols-v1-push"</span> <span class="na">blogID=</span><span class="s">""</span> <span class="na">preferred=</span><span class="s">"true"</span> <span class="na">apiLink=</span><span class="s">"http://nuget.gw.symbolsource.org/MyGet/googleanalyticstracker"</span><span class="nt">&gt;</span>
         <span class="nt">&lt;settings&gt;</span>
           <span class="nt">&lt;setting</span> <span class="na">name=</span><span class="s">"apiKey"</span><span class="nt">&gt;</span>abcdefghijklmnop<span class="nt">&lt;/setting&gt;</span>
         <span class="nt">&lt;/settings&gt;</span>
@@ -272,7 +272,12 @@ Note that this list can be extended at will (e.g. chocolatey-v1 or proget-v2). C
 <li><a href="https://github.com/myget/PackageSourceDiscovery/tree/master/src/Extension">A NuGet.exe extension implementing the PSD spec</a></li>
 </ul><p>Also <a href="https://github.com/myget/PackageSourceDiscovery/wiki">check our Wiki</a> for details on clients implementing this spec already.</p>
 
-<h2>License</h2>
+<h2>Providers implementing the specification</h2>
+
+<ul>
+<li>
+<a href="http://blog.myget.org/post/2013/03/18/Support-for-Package-Source-Discovery-draft.aspx">MyGet</a> has several public PSD endpoints</li>
+</ul><h2>License</h2>
 
 <p>This repository, including the PSD spec and clients, are licensed under the <a href="https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md">Apache v2.0 license</a>.</p>
       </section>
