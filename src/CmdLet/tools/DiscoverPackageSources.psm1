@@ -116,6 +116,14 @@ function Discover-PackageSources {
     			    }
     		    }
 		    }
+		} elseif ($xml.feedList -ne $null) {
+		    # NFD document
+		    foreach ($feed in $xml.feedList.feed) {
+    		    if ((Get-PackageSource -Name $feed.name) -eq $null) {
+					$fullUrl = New-Object System.Uri($baseUrl, $feed.url)
+    			    Add-PackageSource -Name $feed.name -Source $fullUrl.ToString()
+    		    }
+		    }
 		}
 	} catch {
 	}

@@ -46,6 +46,7 @@ namespace NuGet.Test
                         return @"
   <link rel=""nuget"" type=""application/atom+xml"" title=""Sample feed"" href=""http://www.nuget.org/sample/"" />
   <link rel=""nuget"" type=""application/rsd+xml"" href=""http://www.nuget.org/discover/feed/"" />
+  <link rel=""nuget"" type=""application/nfd+xml"" href=""http://www.nuget.org/nugetext/discover-feeds/"" />
 </head>
 <body>
 ";
@@ -82,6 +83,8 @@ namespace NuGet.Test
     </apis>
   </service>
 </rsd>";
+                    case "http://www.nuget.org/nugetext/discover-feeds/":
+                        return @"<?xml version=""1.0"" encoding=""utf-8""?><feedList xmlns=""http://nugetext.org/schemas/nuget-feed-discovery/1.0.0""><feed><guid>00000001-0000-0000-0000-000000000000</guid><name>Default</name><url>/nuget/Default</url><pushUrl>/api/v2/package/Default</pushUrl><htmlUrl>/feeds/Default</htmlUrl></feed></feedList>";
                 }
                 return "Page not found.";
             });
@@ -90,12 +93,15 @@ namespace NuGet.Test
             var packageSources = discovery.FetchDiscoveryDocuments(new Uri("http://discover/"));
 
             // Assert
-            Assert.Equal(2, packageSources.Count());
+            Assert.Equal(3, packageSources.Count());
             Assert.Equal("Sample feed", packageSources.First().AsPackageSource().Name);
             Assert.Equal("http://www.nuget.org/sample/", packageSources.First().AsPackageSource().Source);
 
-            Assert.Equal("Another sample NuGet feed", packageSources.Last().Title);
-            Assert.Equal("http://www.nuget.org/anothersample/", packageSources.Last().Endpoints.First().ApiLink);
+            Assert.Equal("Another sample NuGet feed", packageSources.Skip(1).First().Title);
+            Assert.Equal("http://www.nuget.org/anothersample/", packageSources.Skip(1).First().Endpoints.First().ApiLink);
+
+            Assert.Equal("Default", packageSources.Skip(2).First().Title);
+            Assert.Equal("http://www.nuget.org/nuget/Default", packageSources.Skip(2).First().Endpoints.First().ApiLink);
         }
     }
 }

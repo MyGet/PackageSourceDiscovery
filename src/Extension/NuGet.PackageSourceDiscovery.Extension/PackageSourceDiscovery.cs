@@ -13,6 +13,7 @@ namespace NuGet
         private const string DefaultUserAgentClient = "NuGet Core";
         private static readonly XNamespace RsdNamespace = "http://archipelago.phrasewise.com/rsd";
         private static readonly XNamespace DcNamespace = "http://purl.org/dc/elements/1.1/";
+        private static readonly XNamespace NfdNamespace = "http://nugetext.org/schemas/nuget-feed-discovery/1.0.0";
 
         public event EventHandler<ProgressEventArgs> ProgressAvailable = delegate { };
         public event EventHandler<WebRequestEventArgs> SendingRequest = delegate { };
@@ -38,7 +39,10 @@ namespace NuGet
                 discoveryDocuments = DiscoverPackageSourcesFromFeed(uri, title, data);
 
             if (!discoveryDocuments.Any() && !data.Contains("<html"))
-                discoveryDocuments = DiscoverPackageSourcesFromRsd(data);
+                discoveryDocuments = DiscoverPackageSourcesFromRsd(uri, data);
+
+            if (!discoveryDocuments.Any() && data.Contains("<feedList"))
+                discoveryDocuments = DiscoverPackageSourcesFromNfd(uri, data);
 
             return discoveryDocuments;
         }
@@ -87,7 +91,7 @@ namespace NuGet
             return new PackageSourceDiscoveryDocument[] { };
         }
 
-        private IEnumerable<PackageSourceDiscoveryDocument> DiscoverPackageSourcesFromRsd(string data)
+        private IEnumerable<PackageSourceDiscoveryDocument> DiscoverPackageSourcesFromRsd(Uri uri, string data)
         {
             var discoveryDocuments = new List<PackageSourceDiscoveryDocument>();
 
@@ -119,7 +123,7 @@ namespace NuGet
                     foreach (XElement xmlApi in xmlService.Descendants(RsdNamespace + "api"))
                     {
                         var endpoint = new PackageSourceEndpoint();
-                        endpoint.ApiLink = AttributeValueOrNull(xmlApi.Attribute("apiLink"));
+                        endpoint.ApiLink = new Uri(uri, AttributeValueOrNull(xmlApi.Attribute("apiLink"))).ToString();
                         endpoint.Preferred = bool.Parse(AttributeValueOrNull(xmlApi.Attribute("preferred")) ?? "false");
                         endpoint.Name = AttributeValueOrNull(xmlApi.Attribute("name"));
 
@@ -132,6 +136,33 @@ namespace NuGet
                     }
 
                     discoveryDocuments.Add(discoveryDocument);
+                }
+            }
+            return discoveryDocuments;
+        }
+        private IEnumerable<PackageSourceDiscoveryDocument> DiscoverPackageSourcesFromNfd(Uri uri, string data)
+        {
+            var discoveryDocuments = new List<PackageSourceDiscoveryDocument>();
+
+            // TODO: should we throw a different exception if XML can not be parsed?
+            XDocument xml = XDocument.Parse(data);
+
+            // If an NFD is given, parse it
+            if (xml.Root != null && (xml.Root.Name == NfdNamespace + "feedList" || xml.Root.Name == "feedList"))
+            {
+                // If no NFD namespace is registered, now is the time
+                if (xml.Root.Name == "feedList")
+                {
+                    SetDefaultNamespace(xml.Root, NfdNamespace);
+                }
+
+                // Parse all elements
+                foreach (XElement xmlFeed in xml.Descendants(NfdNamespace + "feed"))
+                {
+                    discoveryDocuments.Add(
+                        new PackageSourceDiscoveryDocument(
+                            ElementValueOrNull(xmlFeed.Element(NfdNamespace + "name")),
+                            new Uri(uri, ElementValueOrNull(xmlFeed.Element(NfdNamespace + "url"))).ToString()));
                 }
             }
             return discoveryDocuments;

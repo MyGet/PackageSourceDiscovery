@@ -176,7 +176,8 @@ The client should respect the following flow of discovering feeds:
 * If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.
 
 The client should support entry of a complete PSD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a PSD manifest or contains a `<link rel="nuget"/>` tag.
-URL's specified in `<link rel="nuget"/>` tags can be absolute or relative.
+
+URLs specified in `<link rel="nuget"/>` tags can be absolute or relative.
 
 Depending on security, consuming an PSD manifest using the `NuGet-ApiKey` header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to https://www.myget.org/Discovery/Feed/googleanalyticstracker:
 
@@ -236,13 +237,28 @@ Example Client / Consumer implementations can be found in the [PackageSourceDisc
 * [A PowerShell CmdLet implementing the PSD spec][3]
 * [A NuGet.exe extension implementing the PSD spec][4]
 
+Note that these sample implementations support:
+* Querying HTML containing `<link rel="nuget"/>`
+* Querying RSD manifests
+* Querying NuGet feeds
+* Querying [NuGet Feed Discovery (NFD)][7] manifests
+
 Also [check our Wiki][1] for details on clients implementing this spec already.
 
 ## Providers implementing the specification
 * [MyGet][6] has several public PSD endpoints
+* [Glimpse][8] supports PSD
 
 ## License
 This repository, including the PSD spec and clients, are licensed under the [Apache v2.0 license][5].
+
+## Comparing PSD with NuGet Feed Discovery (NFD)
+Another package source discovery specification exists, [NuGet Feed Discovery (NFD)][7]. NFD differs from PSD in that both specs have a different intent.
+* NFD is a convention-based API endpoint for listing feeds on a server
+* PSD is a means of discovering feeds from any URL given
+
+If you want more information, read up on [NuGet Feed Discovery (NFD)][7].
+
 
 [1]: https://github.com/myget/PackageSourceDiscovery/wiki
 [2]: https://github.com/myget/PackageSourceDiscovery
@@ -250,3 +266,5 @@ This repository, including the PSD spec and clients, are licensed under the [Apa
 [4]: https://github.com/myget/PackageSourceDiscovery/tree/master/src/Extension
 [5]: https://github.com/myget/PackageSourceDiscovery/blob/master/LICENSE.md
 [6]: http://blog.myget.org/post/2013/03/18/Support-for-Package-Source-Discovery-draft.aspx
+[7]: http://nugetext.org/nuget-feed-discovery
+[8]: http://getglimpse.com
