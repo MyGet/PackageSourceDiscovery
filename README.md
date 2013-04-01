@@ -176,6 +176,7 @@ The client should respect the following flow of discovering feeds:
 * If the URL directly points to a NuGet Package Source Discovery Manifest, we can immediately parse it.
 
 The client should support entry of a complete PSD URL `<protocol>://<host name>:<port>/<path>` but require only that the host name be entered. When less than a full URL is entered, the client should verify if the host returns a PSD manifest or contains a `<link rel="nuget"/>` tag.
+URL's specified in `<link rel="nuget"/>` tags can be absolute or relative.
 
 Depending on security, consuming an PSD manifest using the `NuGet-ApiKey` header or using basic authentication may yield additional endpoints and API settings. For example, MyGet produces the following manifest on an anonymous call to https://www.myget.org/Discovery/Feed/googleanalyticstracker:
 

@@ -61,7 +61,7 @@ namespace NuGet
                 {
                     if (link.HasAttributes && string.Equals(AttributeValueOrNull(link.Attribute("rel")) ?? "", "nuget", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var linkHref = new Uri(link.Attribute("href").Value);
+                        var linkHref = new Uri(uri, link.Attribute("href").Value);
                         var linkTitle = AttributeValueOrNull(link.Attribute("title"));
 
                         discoveryDocuments.AddRange(FetchDiscoveryDocuments(linkHref, linkTitle));

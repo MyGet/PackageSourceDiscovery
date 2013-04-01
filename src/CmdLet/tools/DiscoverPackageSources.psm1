@@ -80,6 +80,7 @@ function Discover-PackageSources {
 	}
  
 	$data = $webclient.DownloadString($Url)
+	$baseUrl = New-Object System.Uri($Url)
 
 	$resultingMatches = [Regex]::Matches($data, $hrefRegex, "IgnoreCase")
 	foreach ($match in $resultingMatches) {
@@ -88,7 +89,8 @@ function Discover-PackageSources {
 	   $title = [Regex]::Match($match, $titleRegex, "IgnoreCase").Groups[1].Value
 
 	   if ($rel -eq "nuget") {
-	       Discover-PackageSources -Url $match.Groups[1].Value.Trim() -Username $Username -Password $Password -Title $title
+			$fullUrl = New-Object System.Uri($baseUrl, $match.Groups[1].Value.Trim())
+	        Discover-PackageSources -Url $fullUrl.ToString() -Username $Username -Password $Password -Title $title
 	   }
 	}
 	
