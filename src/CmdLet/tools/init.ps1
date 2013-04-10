@@ -31,6 +31,7 @@ Write-Host "Congratulations! The following additional commands have been install
 Write-Host "NuGet PowerShell Profile and are now always available in this console:"
 Write-Host "- Get-PackageSource"
 Write-Host "- Add-PackageSource"
+Write-Host "- Add-DebuggingSource"
 Write-Host "- Discover-PackageSources"
 Write-Host "*************************************************************************************"
 Write-Host ""
