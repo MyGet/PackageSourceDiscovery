@@ -41,8 +41,6 @@ function Add-DebuggingSource {
 		[string]$Source
     ) 
 
-	$Source = "http://srv.symbolsource.org/pdb/MyGet/maartenba/c8ba0cdf-71b8-49d1-8033-34d672f8dbc0";
-	
 	$dte.Windows.Item("{ECB7191A-597B-41F5-9843-03A4CF275DDE}").Activate()
 	
 	$dte.ExecuteCommand("Edit.ClearAll")
