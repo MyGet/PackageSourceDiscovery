@@ -40,7 +40,7 @@ function Add-DebuggingSource {
 		[parameter(Mandatory = $true)]
 		[string]$Source
     ) 
-	
+
 	$dte.Windows.Item("{ECB7191A-597B-41F5-9843-03A4CF275DDE}").Activate()
 	
 	$dte.ExecuteCommand("Edit.ClearAll")
@@ -49,6 +49,8 @@ function Add-DebuggingSource {
 	$previousSources = $dte.ActiveWindow.Selection.Text
 	
 	$dte.ExecuteCommand("Debug.EvaluateStatement", ".sympath $previousSources;$Source")
+	
+	Write-Host "Added debugging source `"$Source`""
 }
 
 function Discover-PackageSources {
@@ -87,7 +89,7 @@ function Discover-PackageSources {
 
 	$webclient = new-object System.Net.WebClient
 	if ($Username -ne "") {
-	   $credentials = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Username + ":" + $Password))
+		$credentials = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Username + ":" + $Password))
         $webClient.Headers.Add("Authorization", "Basic $credentials")
 	}
 	if ($ApiKey -ne "") {
@@ -109,7 +111,7 @@ function Discover-PackageSources {
 	        Discover-PackageSources -Url $fullUrl.ToString() -Username $Username -Password $Password -Title $title
 	   }
 	}
-	
+
 	try {
 		$xml = [xml]$data
 		
@@ -124,15 +126,15 @@ function Discover-PackageSources {
 		} elseif ($xml.rsd -ne $null) {
 		    # RSD document
 		    foreach ($service in $xml.rsd.service) {
-    		    if ((Get-PackageSource -Name $service.title) -eq $null) {
-    			    foreach ($endpoint in $service.apis.api) {
-    				    if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
+    			foreach ($endpoint in $service.apis.api) {
+    				if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
+						if ((Get-PackageSource -Name $service.title) -eq $null) {
     				    	Add-PackageSource -Name $service.title -Source $endpoint.apiLink
     				    }
-						if ($endpoint.name -eq "symsrc-v1-symbols" -and $endpoint.preferred -eq "true" ) {
-    				    	Add-DebuggingSource -Source $endpoint.apiLink
-    				    }
     			    }
+					if ($endpoint.name -eq "symsrc-v1-symbols" -and $endpoint.preferred -eq "true" ) {
+						Add-DebuggingSource -Source $endpoint.apiLink
+					}
     		    }
 		    }
 		} elseif ($xml.feedList -ne $null) {
