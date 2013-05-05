@@ -8,11 +8,15 @@ function Add-PackageSource {
 
 	$configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
 	$configurationXml = [xml]$configuration
-
+	
+	if ($configurationXml.configuration.packageSources -eq $null) {
+		$configurationXml.configuration.appendChild( $configurationXml.createElement("packageSources") ) | Out-Null
+	}
+	
 	$sourceToAdd = $configurationXml.createElement("add")
 	$sourceToAdd.SetAttribute("key", $Name);
 	$sourceToAdd.SetAttribute("value", $Source);
-	$configurationXml.configuration.packageSources.appendChild($sourceToAdd) | Out-Null
+	$configurationXml.configuration["packageSources"].appendChild($sourceToAdd) | Out-Null
 
 	$configurationXml.save("$env:AppData\NuGet\NuGet.config")
 
