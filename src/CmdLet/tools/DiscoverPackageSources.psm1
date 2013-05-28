@@ -69,7 +69,9 @@ function Discover-PackageSources {
 		[parameter(Mandatory = $false)]
 		[string]$ApiKey, 
 		[parameter(Mandatory = $false)]
-		[string]$Title
+		[string]$Title, 
+		[parameter(Mandatory = $false)]
+		[boolean]$OverwriteExisting = $false
     )   
 
 	if ($Url -eq "") {
@@ -78,7 +80,7 @@ function Discover-PackageSources {
 			$autoDiscoveryUrl = "http://nuget.$dnsDomain"
 			Write-Host "Trying feed autodiscovery from $autoDiscoveryUrl..."
 			try {
-				Discover-PackageSources -Url $autoDiscoveryUrl -Username $Username -Password $Password
+				Discover-PackageSources -Url $autoDiscoveryUrl -Username $Username -Password $Password -OverwriteExisting $OverwriteExisting
 			} catch {
 				Write-Host "Could not autodiscover feeds."
 			}
@@ -113,7 +115,7 @@ function Discover-PackageSources {
 
 	   if ($rel -eq "nuget") {
 			$fullUrl = New-Object System.Uri($baseUrl, $match.Groups[1].Value.Trim())
-	        Discover-PackageSources -Url $fullUrl.ToString() -Username $Username -Password $Password -Title $title
+	        Discover-PackageSources -Url $fullUrl.ToString() -Username $Username -Password $Password -Title $title -OverwriteExisting $OverwriteExisting
 	   }
 	}
 
@@ -125,7 +127,7 @@ function Discover-PackageSources {
 		    if ($Title -eq "") {
 		        $Title = Split-Path $Url -Leaf
 		    }
-		    if ((Get-PackageSource -Name $Title) -eq $null) {
+		    if ($OverwriteExisting -eq $true -or (Get-PackageSource -Name $Title) -eq $null) {
 		        Add-PackageSource -Name $Title -Source $Url
 		    }
 		} elseif ($xml.rsd -ne $null) {
@@ -133,7 +135,7 @@ function Discover-PackageSources {
 		    foreach ($service in $xml.rsd.service) {
     			foreach ($endpoint in $service.apis.api) {
     				if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
-						if ((Get-PackageSource -Name $service.title) -eq $null) {
+						if ($OverwriteExisting -eq $true -or (Get-PackageSource -Name $service.title) -eq $null) {
     				    	Add-PackageSource -Name $service.title -Source $endpoint.apiLink
     				    }
     			    }
@@ -145,7 +147,7 @@ function Discover-PackageSources {
 		} elseif ($xml.feedList -ne $null) {
 		    # NFD document
 		    foreach ($feed in $xml.feedList.feed) {
-    		    if ((Get-PackageSource -Name $feed.name) -eq $null) {
+    		    if ($OverwriteExisting -eq $true -or (Get-PackageSource -Name $feed.name) -eq $null) {
 					$fullUrl = New-Object System.Uri($baseUrl, $feed.url)
     			    Add-PackageSource -Name $feed.name -Source $fullUrl.ToString()
     		    }
