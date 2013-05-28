@@ -39,6 +39,23 @@ function Get-PackageSource {
 	}
 }
 
+function Remove-PackageSource {
+    param(
+		[parameter(Mandatory = $true)]
+		[string]$Name
+    )   
+
+	$configuration = Get-Content "$env:AppData\NuGet\NuGet.config"
+	$configurationXml = [xml]$configuration
+
+	$node = $configurationXml.SelectSingleNode("//packageSources/add[@key='$Name']")
+	if ($node -ne $null) {
+		[Void]$node.ParentNode.RemoveChild($node)
+
+		$configurationXml.save("$env:AppData\NuGet\NuGet.config");
+	}
+}
+
 function Add-DebuggingSource {
     param(
 		[parameter(Mandatory = $true)]
@@ -127,7 +144,10 @@ function Discover-PackageSources {
 		    if ($Title -eq "") {
 		        $Title = Split-Path $Url -Leaf
 		    }
-		    if ($OverwriteExisting -eq $true -or (Get-PackageSource -Name $Title) -eq $null) {
+			if ($OverwriteExisting -eq $true) {
+				Remove-PackageSource -Name $Title
+			}
+		    if ((Get-PackageSource -Name $Title) -eq $null) {
 		        Add-PackageSource -Name $Title -Source $Url
 		    }
 		} elseif ($xml.rsd -ne $null) {
@@ -135,7 +155,10 @@ function Discover-PackageSources {
 		    foreach ($service in $xml.rsd.service) {
     			foreach ($endpoint in $service.apis.api) {
     				if ($endpoint.name -eq "nuget-v2-packages" -and $endpoint.preferred -eq "true" ) {
-						if ($OverwriteExisting -eq $true -or (Get-PackageSource -Name $service.title) -eq $null) {
+						if ($OverwriteExisting -eq $true) {
+							Remove-PackageSource -Name $service.title 
+						}
+						if ((Get-PackageSource -Name $service.title) -eq $null) {
     				    	Add-PackageSource -Name $service.title -Source $endpoint.apiLink
     				    }
     			    }
@@ -147,7 +170,10 @@ function Discover-PackageSources {
 		} elseif ($xml.feedList -ne $null) {
 		    # NFD document
 		    foreach ($feed in $xml.feedList.feed) {
-    		    if ($OverwriteExisting -eq $true -or (Get-PackageSource -Name $feed.name) -eq $null) {
+				if ($OverwriteExisting -eq $true) {
+					Remove-PackageSource -Name $feed.name
+				}
+    		    if ((Get-PackageSource -Name $feed.name) -eq $null) {
 					$fullUrl = New-Object System.Uri($baseUrl, $feed.url)
     			    Add-PackageSource -Name $feed.name -Source $fullUrl.ToString()
     		    }
