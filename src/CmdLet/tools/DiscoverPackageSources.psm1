@@ -71,7 +71,7 @@ function Discover-PackageSources {
 		[parameter(Mandatory = $false)]
 		[string]$Title, 
 		[parameter(Mandatory = $false)]
-		[boolean]$OverwriteExisting
+		[switch]$OverwriteExisting
     )   
 
 	if ($Url -eq "") {
