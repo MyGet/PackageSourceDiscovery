@@ -9,7 +9,9 @@ if(!(Test-Path $profile)){
 	New-Item $profile -Type file -Value "Import-Module DiscoverPackageSources -DisableNameChecking"
 }
 else{
-	Add-Content -Path $profile -Value "`r`nImport-Module DiscoverPackageSources -DisableNameChecking"
+	if (!(Select-String "DiscoverPackageSources" -Quiet $profile)) {
+		Add-Content -Path $profile -Value "`r`nImport-Module DiscoverPackageSources -DisableNameChecking"
+	}
 }
 
 # Copy the DiscoverPackageSources.psd1 and DiscoverPackageSources.psm1 files to the profile directory
