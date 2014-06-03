@@ -7,8 +7,9 @@
     <authors>Maarten Balliauw, Xavier Decoster</authors>
     <owners>MyGet</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://raw.githubusercontent.com/myget/PackageSourceDiscovery/master/LICENSE.md</licenseUrl>
     <description>$description$</description>
-    <copyright>Copyright 2013 MyGet</copyright>
+    <copyright>Copyright 2013 - 2014 MyGet</copyright>
     <tags>discovery discover package sources source feed</tags>
   </metadata>
 </package>
