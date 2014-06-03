@@ -6,8 +6,10 @@
         <authors>Maarten Balliauw,Xavier Decoster</authors>
         <owners>MyGet</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <licenseUrl>https://raw.githubusercontent.com/myget/PackageSourceDiscovery/master/LICENSE.md</licenseUrl>
         <description>Discover package sources from a given URL. If no URL is given, http://nuget.&lt;networkdomain&gt; will be assumed.</description>
         <summary>Discover package sources</summary>
         <tags>discovery discover package sources source feed</tags>
+        <copyright>Copyright 2013 - 2014 MyGet</copyright>
     </metadata>
 </package>
