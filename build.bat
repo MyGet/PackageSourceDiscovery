@@ -9,6 +9,7 @@ if not "%PackageVersion%" == "" (
    set version=-Version %PackageVersion%
 )
 
+tools\nuget.exe restore "src\Extension\NuGet.PackageSourceDiscovery.sln" -OutputDirectory %cd%\src\Extension\packages -NonInteractive
 %WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild "src\Extension\NuGet.PackageSourceDiscovery.sln" /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false
 
 mkdir Build
